@@ -54,13 +54,13 @@
         android:layout_height="wrap_content"
         android:gravity="center">
 
-        <Button
-            android:id="@+id/btn_back"
-            style="@style/BackStyle"
-            android:layout_width="100dp"
-            android:layout_height="48dp"
-            android:text="back"
-            />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_back"
+        style="@style/BackStyle"
+        android:layout_width="100dp"
+        android:layout_height="48dp"
+        android:text="back" />
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.gachon.algorithm;
 
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -9,14 +10,11 @@ public class User {
     private int n=0; // 데이터 개수
 
     private String group_name;
-
-
-
-
     private int Start_hour;
     private int Start_minute;
     private int End_hour;
     private int End_minute;
+
 
 //getter&setter 무언가를 가져오거나 세팅 준비단계
 

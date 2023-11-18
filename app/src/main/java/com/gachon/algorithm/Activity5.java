@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 public class Activity5 extends AppCompatActivity {
 
@@ -16,28 +17,31 @@ public class Activity5 extends AppCompatActivity {
 
         EditText et_roomCount = findViewById(R.id.et_roomCount);
         EditText et_cleaningTime = findViewById(R.id.et_cleaningTime);
-        Button btn_roomCount = findViewById(R.id.btn_roomCount);
-        Button btn_cleaningTime = findViewById(R.id.btn_cleaningTime);
+        Button btn_save = findViewById(R.id.btn_save);
         Button btn_back = findViewById(R.id.btn_Back);
+        Button btn_reset = findViewById(R.id.btn_Reset); // 초기화 버튼 추가
 
+        UserDataBase database = Room.databaseBuilder(getApplicationContext(), UserDataBase.class, "team_db")
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
+                .build();
 
-        btn_cleaningTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int cleaningTime = Integer.parseInt(et_cleaningTime.getText().toString());
+        ManageInfoDao mManageInfoDao = database.manageInfoDao();
 
-                // Room 데이터베이스에 저장하는 코드
-                // saveToDatabase(roomCount, cleaningTime);
-            }
-        });
-
-        btn_roomCount.setOnClickListener(new View.OnClickListener() {
+        btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int roomCount = Integer.parseInt(et_roomCount.getText().toString());
+                int cleaningTime = Integer.parseInt(et_cleaningTime.getText().toString());
 
-                // Room 데이터베이스에 저장하는 코드
-                // saveToDatabase(roomCount, cleaningTime);
+                // ManageInfo 객체 생성 및 값 설정
+                ManageInfo manageInfo = new ManageInfo();
+                manageInfo.setId(1);
+                manageInfo.setRoomCount(roomCount);
+                manageInfo.setCleaningTime(cleaningTime);
+
+                // Room 데이터베이스에 저장
+                mManageInfoDao.insert(manageInfo);
             }
         });
 
@@ -45,6 +49,15 @@ public class Activity5 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+
+        // 초기화 버튼 클릭 이벤트
+        btn_reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Room 데이터베이스의 ManageInfo 테이블 초기화
+                mManageInfoDao.deleteAll();
             }
         });
     }

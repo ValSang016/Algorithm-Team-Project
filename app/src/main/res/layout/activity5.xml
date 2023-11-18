@@ -8,60 +8,76 @@
     tools:context=".Activity5">
 
     <EditText
+        style="@style/EnterStyle"
         android:id="@+id/et_roomCount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="74dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#FFFFFF"
-        android:padding="10dp"
         android:hint="Enter number of room"
-        />
-
-    <Button
-        android:id="@+id/btn_roomCount"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/et_roomCount"
-        android:layout_margin="10dp"
-        android:backgroundTint="#0088FF"
-        android:text="Save"
-        android:textColor="#FFFFFF"
-        tools:ignore="HardcodedText" />
+        android:padding="10dp" />
 
     <EditText
+        style="@style/EnterStyle"
         android:id="@+id/et_cleaningTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/btn_roomCount"
-        android:layout_margin="10dp"
+        android:layout_below="@+id/et_roomCount"
+        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="23dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:background="#FFFFFF"
-        android:padding="10dp"
-        android:hint="Enter time of cleaning"  />
+        android:hint="Enter time of cleaning"
+        android:padding="10dp" />
 
     <Button
-        android:id="@+id/btn_cleaningTime"
-        android:layout_width="match_parent"
+        android:id="@+id/btn_save"
+        style="@style/BtnStyle"
+        android:layout_width="368dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/et_cleaningTime"
-        android:layout_margin="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="379dp"
+        android:layout_marginBottom="251dp"
+        android:background="@drawable/btn_style"
+        android:text="save" />
+
+    <Button
+        android:id="@+id/btn_Back"
+        style="@style/BtnStyle"
+        android:layout_width="156dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/btn_style"
         android:backgroundTint="#0088FF"
-        android:text="Save"
+        android:text="Back"
         android:textColor="#FFFFFF"
         tools:ignore="HardcodedText" />
 
     <Button
-        android:id="@+id/btn_Back"
-        android:layout_width="160dp"
+        android:id="@+id/btn_Reset"
+        style="@style/BtnStyle"
+        android:layout_width="156dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="241dp"
-        android:layout_marginBottom="33dp"
+        android:layout_marginEnd="235dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/btn_style"
         android:backgroundTint="#0088FF"
-        android:text="Back"
+        android:text="Reset"
         android:textColor="#FFFFFF"
         tools:ignore="HardcodedText" />
 

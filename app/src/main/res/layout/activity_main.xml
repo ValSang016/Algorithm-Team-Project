@@ -10,7 +10,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="136dp"
-        android:text="예약신청" />
+        android:text="Reservation" />
 
     <Button
         android:id="@+id/btn_confirm"
@@ -19,7 +19,7 @@
         android:layout_below="@+id/btn_reservation"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="139dp"
-        android:text="예약확정" />
+        android:text="Cnfirm reservation" />
 
     <Button
         android:id="@+id/btn_settings"
@@ -28,6 +28,6 @@
         android:layout_below="@+id/btn_confirm"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="121dp"
-        android:text="관리자설정" />
+        android:text="Manage" />
 </RelativeLayout>
 

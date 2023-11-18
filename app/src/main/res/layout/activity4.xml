@@ -14,9 +14,10 @@
 
         <Button
             android:id="@+id/btn_test1_set"
-            android:layout_width="100dp"
+            android:layout_width="140dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center_vertical"
+            android:background="@drawable/btn_style"
             android:backgroundTint="#0088FF"
             android:text="setting" />
 
@@ -27,11 +28,12 @@
 
         <Button
             android:id="@+id/btn_test1_back"
-            android:layout_width="100dp"
+            android:layout_width="139dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal|center_vertical"
+            android:background="@drawable/btn_style"
             android:backgroundTint="#0088FF"
-            android:text="Go back" />
+            android:text="Back" />
     </LinearLayout>
 
 </LinearLayout>
