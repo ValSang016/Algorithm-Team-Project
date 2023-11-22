@@ -1,30 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <!-- 동적으로 생성될 테이블 레이아웃 -->
     <TableLayout
         android:id="@+id/table_layout"
+        android:stretchColumns="*"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <Button
-        android:id="@+id/btn_back"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:text="Back" />
+        android:layout_weight="1" />
 
-    <!-- '데이터 초기화' 버튼을 '뒤로가기' 버튼의 오른쪽에 위치하도록 수정 -->
-    <Button
-        android:id="@+id/btn_reset"
-        android:layout_width="wrap_content"
+    <TableLayout
+        android:id="@+id/cancelled_table_layout"
+        android:stretchColumns="*"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_toEndOf="@id/btn_back"
-        android:text="Reset" />
-</RelativeLayout>
+        android:layout_weight="1" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/btn_back"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Back" />
+
+        <!-- '데이터 초기화' 버튼을 '뒤로가기' 버튼의 오른쪽에 위치하도록 수정 -->
+        <Button
+            android:id="@+id/btn_reset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Reset" />
+    </LinearLayout>
+</LinearLayout>

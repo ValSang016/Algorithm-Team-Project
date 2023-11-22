@@ -18,6 +18,9 @@ import com.gachon.algorithm.User;
 import com.gachon.algorithm.UserDao;
 import com.gachon.algorithm.UserDataBase;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Activity3 extends AppCompatActivity {
@@ -60,16 +63,16 @@ public class Activity3 extends AppCompatActivity {
     }
 
     private class FetchDataAsyncTask extends AsyncTask<Void, Void, List<User>> {
-
+        private List<User> cancelledUsers;
         @Override
         protected List<User> doInBackground(Void... voids) {
             // 백그라운드에서 데이터베이스에서 데이터 가져오기
             List<User> users = mUserDao.getUserAll();
 
-            // activity-selection 알고리즘을 이용하여 데이터 정렬
-            // sortUsers(users);
+            // 종료 시간을 기준으로 정렬하고, 가장 많은 예약 시간을 갖는 경우를 선택하는 알고리즘을 적용
+            List<User> sortedUsers = sortUsers(users);
 
-            return users;
+            return sortedUsers;
         }
 
         @Override
@@ -80,41 +83,111 @@ public class Activity3 extends AppCompatActivity {
             TableLayout tableLayout = findViewById(R.id.table_layout);
             tableLayout.removeAllViews(); // 테이블 초기화
 
+            addTableHeader(tableLayout, "Group Name", "Start Time", "End Time"); // 테이블 헤더 추가
+
             // 데이터를 이용하여 동적으로 테이블 생성
             for (User user : userList) {
-                TableRow row = new TableRow(Activity3.this);
+                addTableRow(tableLayout, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
+            }
 
-                // 사용자 정보를 표시할 TextView들 생성
-                TextView userGroupNameTextView = new TextView(Activity3.this);
-                userGroupNameTextView.setText(user.getGroup_name());
-                userGroupNameTextView.setGravity(Gravity.CENTER);
-                userGroupNameTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-                userGroupNameTextView.setTextColor(Color.WHITE);
+            // 취소된 예약을 표시하는 테이블 생성
+            TableLayout cancelledTableLayout = findViewById(R.id.cancelled_table_layout);
+            cancelledTableLayout.removeAllViews();
 
-                TextView userStartTimeTextView = new TextView(Activity3.this);
-                userStartTimeTextView.setText(formatTime(user.getStart_hour(), user.getStart_minute())); // 수정된 부분
-                userStartTimeTextView.setGravity(Gravity.CENTER);
-                userStartTimeTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-                userStartTimeTextView.setTextColor(Color.WHITE);
+            addTableHeader(cancelledTableLayout, "Cancelled Group Name", "Start Time", "End Time"); // 취소된 예약 테이블 헤더 추가
 
-                TextView userEndTimeTextView = new TextView(Activity3.this);
-                userEndTimeTextView.setText(formatTime(user.getEnd_hour(), user.getEnd_minute())); // 수정된 부분
-                userEndTimeTextView.setGravity(Gravity.CENTER);
-                userEndTimeTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-                userEndTimeTextView.setTextColor(Color.WHITE);
-
-                // 각 행에 TextView 추가
-                row.addView(userGroupNameTextView);
-                row.addView(userStartTimeTextView);
-                row.addView(userEndTimeTextView);
-
-                // 테이블에 행 추가
-                tableLayout.addView(row);
+            for (User user : cancelledUsers) {
+                addTableRow(cancelledTableLayout, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
             }
         }
 
+        private void addTableHeader(TableLayout tableLayout, String... headers) {
+            TableRow headerRow = new TableRow(Activity3.this);
+            headerRow.setBackgroundColor(Color.GRAY); // 헤더 행에 백그라운드 색상 설정
+
+            for (String header : headers) {
+                TextView headerTextView = new TextView(Activity3.this);
+                headerTextView.setText(header);
+                headerTextView.setGravity(Gravity.CENTER);
+                headerTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+                headerTextView.setTextColor(Color.WHITE);
+
+                headerRow.addView(headerTextView);
+            }
+
+            tableLayout.addView(headerRow);
+        }
+
+        private void addTableRow(TableLayout tableLayout, String... values) {
+            TableRow row = new TableRow(Activity3.this);
+
+            for (String value : values) {
+                TextView valueTextView = new TextView(Activity3.this);
+                valueTextView.setText(value);
+                valueTextView.setGravity(Gravity.CENTER);
+                valueTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+                valueTextView.setTextColor(Color.BLACK);
+
+                row.addView(valueTextView);
+            }
+
+            tableLayout.addView(row);
+        }
+
+
         private String formatTime(int hours, int minutes) {
             return String.format("%02d:%02d", hours, minutes);
+        }
+
+        // 종료 시간을 기준으로 정렬하고, 가장 많은 예약 시간을 갖는 경우를 선택하는 알고리즘
+        private List<User> sortUsers(List<User> users) {
+            // 종료 시간 기준으로 오름차순 정렬
+            Collections.sort(users, new Comparator<User>() {
+                @Override
+                public int compare(User u1, User u2) {
+                    return (u1.getEnd_hour() * 60 + u1.getEnd_minute()) - (u2.getEnd_hour() * 60 + u2.getEnd_minute());
+                }
+            });
+
+            List<List<User>> subsets = new ArrayList<>(); // 모든 가능한 예약 조합을 저장할 리스트
+            subsets.add(new ArrayList<>()); // 빈 예약 리스트 추가
+
+            for (User user : users) {
+                List<List<User>> newSubsets = new ArrayList<>();
+
+                for (List<User> subset : subsets) {
+                    if (subset.isEmpty() || (subset.get(subset.size() - 1).getEnd_hour() * 60 + subset.get(subset.size() - 1).getEnd_minute()) <= (user.getStart_hour() * 60 + user.getStart_minute())) {
+                        List<User> newSubset = new ArrayList<>(subset);
+                        newSubset.add(user);
+                        newSubsets.add(newSubset);
+                    }
+                }
+
+                subsets.addAll(newSubsets);
+            }
+
+            // 가장 많은 예약 시간을 갖는 예약 리스트 선택
+            List<User> maxSubset = null;
+            int maxTime = 0;
+
+            for (List<User> subset : subsets) {
+                int time = 0;
+
+                for (User user : subset) {
+                    time += (user.getEnd_hour() * 60 + user.getEnd_minute()) - (user.getStart_hour() * 60 + user.getStart_minute());
+                }
+
+                if (time > maxTime) {
+                    maxTime = time;
+                    maxSubset = subset;
+                }
+            }
+
+            // 선택되지 않은 예약들을 따로 저장
+            cancelledUsers = new ArrayList<>(users);
+            cancelledUsers.removeAll(maxSubset);
+
+            return maxSubset;
         }
     }
 }
