@@ -99,7 +99,7 @@ public class Activity3 extends AppCompatActivity {
             TableLayout cancelledTableLayout = findViewById(R.id.cancelled_table_layout);
             cancelledTableLayout.removeAllViews();
 
-            addTableHeader(cancelledTableLayout, "Cancelled Group Name", "Start Time", "End Time");
+            addTableHeader(cancelledTableLayout, "Room Number", "Cancelled Group Name", "Start Time", "End Time");
 
             for (User user : cancelledUsers) {
                 addTableRow(cancelledTableLayout,0, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
