@@ -25,6 +25,7 @@ import java.util.List;
 
 public class Activity3 extends AppCompatActivity {
     private UserDao mUserDao;
+    private ManageInfoDao mManageInfoDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +33,16 @@ public class Activity3 extends AppCompatActivity {
         setContentView(R.layout.activity3);
 
         UserDataBase database = Room.databaseBuilder(getApplicationContext(), UserDataBase.class, "team_db")
-                .fallbackToDestructiveMigration() // 스키마 버전 변경 가능
-                .allowMainThreadQueries()   // main thread 에서 db에 IO 가능하게.
+                .fallbackToDestructiveMigration()
+                .allowMainThreadQueries()
                 .build();
 
+
         mUserDao = database.userDao(); // database 인스턴스를 사용하도록 수정
+        mManageInfoDao = database.manageInfoDao();
 
         // 데이터베이스에서 데이터 비동기적으로 가져오기
-        new FetchDataAsyncTask().execute();
+        new FetchDataAsyncTask(mManageInfoDao.getManageInfo()).execute();
 
         // '뒤로가기' 버튼 클릭 이벤트 리스너 추가
         Button btnBack = findViewById(R.id.btn_back);
@@ -56,7 +59,7 @@ public class Activity3 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 mUserDao.deleteAll(); // 모든 User 데이터 삭제
-                new FetchDataAsyncTask().execute(); // 테이블 업데이트
+                new FetchDataAsyncTask(mManageInfoDao.getManageInfo()).execute();
             }
         });
 
@@ -64,6 +67,11 @@ public class Activity3 extends AppCompatActivity {
 
     private class FetchDataAsyncTask extends AsyncTask<Void, Void, List<User>> {
         private List<User> cancelledUsers;
+        private ManageInfo manageInfo;
+
+        public FetchDataAsyncTask(ManageInfo manageInfo) {
+            this.manageInfo = manageInfo;
+        }
         @Override
         protected List<User> doInBackground(Void... voids) {
             // 백그라운드에서 데이터베이스에서 데이터 가져오기
@@ -79,31 +87,30 @@ public class Activity3 extends AppCompatActivity {
         protected void onPostExecute(List<User> userList) {
             super.onPostExecute(userList);
 
-            // TableLayout 가져오기
             TableLayout tableLayout = findViewById(R.id.table_layout);
-            tableLayout.removeAllViews(); // 테이블 초기화
+            tableLayout.removeAllViews();
 
-            addTableHeader(tableLayout, "Group Name", "Start Time", "End Time"); // 테이블 헤더 추가
+            addTableHeader(tableLayout, "Room Number", "Group Name", "Start Time", "End Time");
 
-            // 데이터를 이용하여 동적으로 테이블 생성
             for (User user : userList) {
-                addTableRow(tableLayout, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
+                addTableRow(tableLayout, user.getRoomNumber(), user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
             }
 
-            // 취소된 예약을 표시하는 테이블 생성
             TableLayout cancelledTableLayout = findViewById(R.id.cancelled_table_layout);
             cancelledTableLayout.removeAllViews();
 
-            addTableHeader(cancelledTableLayout, "Cancelled Group Name", "Start Time", "End Time"); // 취소된 예약 테이블 헤더 추가
+            addTableHeader(cancelledTableLayout, "Cancelled Group Name", "Start Time", "End Time");
 
             for (User user : cancelledUsers) {
-                addTableRow(cancelledTableLayout, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
+                addTableRow(cancelledTableLayout,0, user.getGroup_name(), formatTime(user.getStart_hour(), user.getStart_minute()), formatTime(user.getEnd_hour(), user.getEnd_minute()));
             }
         }
 
+
         private void addTableHeader(TableLayout tableLayout, String... headers) {
             TableRow headerRow = new TableRow(Activity3.this);
-            headerRow.setBackgroundColor(Color.GRAY); // 헤더 행에 백그라운드 색상 설정
+            headerRow.setBackgroundColor(Color.GRAY);
+
 
             for (String header : headers) {
                 TextView headerTextView = new TextView(Activity3.this);
@@ -118,8 +125,17 @@ public class Activity3 extends AppCompatActivity {
             tableLayout.addView(headerRow);
         }
 
-        private void addTableRow(TableLayout tableLayout, String... values) {
+        private void addTableRow(TableLayout tableLayout, int index, String... values) {
             TableRow row = new TableRow(Activity3.this);
+
+            // 새로운 column 추가
+            TextView indexTextView = new TextView(Activity3.this);
+            indexTextView.setText(String.valueOf(index));
+            indexTextView.setGravity(Gravity.CENTER);
+            indexTextView.setLayoutParams(new TableRow.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            indexTextView.setTextColor(Color.BLACK);
+
+            row.addView(indexTextView);
 
             for (String value : values) {
                 TextView valueTextView = new TextView(Activity3.this);
@@ -141,53 +157,56 @@ public class Activity3 extends AppCompatActivity {
 
         // 종료 시간을 기준으로 정렬하고, 가장 많은 예약 시간을 갖는 경우를 선택하는 알고리즘
         private List<User> sortUsers(List<User> users) {
-            // 종료 시간 기준으로 오름차순 정렬
-            Collections.sort(users, new Comparator<User>() {
-                @Override
-                public int compare(User u1, User u2) {
-                    return (u1.getEnd_hour() * 60 + u1.getEnd_minute()) - (u2.getEnd_hour() * 60 + u2.getEnd_minute());
+            List<User> finalReservation = new ArrayList<>();
+            List<User> currentUsers = new ArrayList<>(users);
+
+            for (int i = 0; i < manageInfo.getRoomCount(); i++) {
+                Collections.sort(currentUsers, new Comparator<User>() {
+                    @Override
+                    public int compare(User u1, User u2) {
+                        return (u1.getEnd_hour() * 60 + u1.getEnd_minute()) - (u2.getEnd_hour() * 60 + u2.getEnd_minute());
+                    }
+                });
+
+                List<List<User>> subsets = new ArrayList<>();
+                subsets.add(new ArrayList<>());
+
+                for (User user : currentUsers) {
+                    List<List<User>> newSubsets = new ArrayList<>();
+                    for (List<User> subset : subsets) {
+                        if (subset.isEmpty() || (subset.get(subset.size() - 1).getEnd_hour() * 60 + subset.get(subset.size() - 1).getEnd_minute() + manageInfo.getCleaningTime()) <= (user.getStart_hour() * 60 + user.getStart_minute())) {
+                            List<User> newSubset = new ArrayList<>(subset);
+                            newSubset.add(user);
+                            newSubsets.add(newSubset);
+                        }
+                    }
+                    subsets.addAll(newSubsets);
                 }
-            });
 
-            List<List<User>> subsets = new ArrayList<>(); // 모든 가능한 예약 조합을 저장할 리스트
-            subsets.add(new ArrayList<>()); // 빈 예약 리스트 추가
-
-            for (User user : users) {
-                List<List<User>> newSubsets = new ArrayList<>();
-
+                List<User> maxSubset = null;
+                int maxTime = 0;
                 for (List<User> subset : subsets) {
-                    if (subset.isEmpty() || (subset.get(subset.size() - 1).getEnd_hour() * 60 + subset.get(subset.size() - 1).getEnd_minute()) <= (user.getStart_hour() * 60 + user.getStart_minute())) {
-                        List<User> newSubset = new ArrayList<>(subset);
-                        newSubset.add(user);
-                        newSubsets.add(newSubset);
+                    int time = 0;
+                    for (User user : subset) {
+                        time += (user.getEnd_hour() * 60 + user.getEnd_minute()) - (user.getStart_hour() * 60 + user.getStart_minute());
+                    }
+                    if (time > maxTime) {
+                        maxTime = time;
+                        maxSubset = subset;
                     }
                 }
 
-                subsets.addAll(newSubsets);
-            }
-
-            // 가장 많은 예약 시간을 갖는 예약 리스트 선택
-            List<User> maxSubset = null;
-            int maxTime = 0;
-
-            for (List<User> subset : subsets) {
-                int time = 0;
-
-                for (User user : subset) {
-                    time += (user.getEnd_hour() * 60 + user.getEnd_minute()) - (user.getStart_hour() * 60 + user.getStart_minute());
-                }
-
-                if (time > maxTime) {
-                    maxTime = time;
-                    maxSubset = subset;
+                if (maxSubset != null) {
+                    for (User user : maxSubset) {
+                        user.setRoomNumber(i + 1); // 방 번호 설정
+                    }
+                    finalReservation.addAll(maxSubset);
+                    currentUsers.removeAll(maxSubset);
                 }
             }
-
-            // 선택되지 않은 예약들을 따로 저장
-            cancelledUsers = new ArrayList<>(users);
-            cancelledUsers.removeAll(maxSubset);
-
-            return maxSubset;
+            cancelledUsers = currentUsers;
+            return finalReservation;
         }
+
     }
 }

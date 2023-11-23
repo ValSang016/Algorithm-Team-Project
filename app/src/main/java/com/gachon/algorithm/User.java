@@ -15,6 +15,8 @@ public class User {
     private int End_hour;
     private int End_minute;
 
+    private int roomNumber; // 새로운 필드
+
 
 //getter&setter 무언가를 가져오거나 세팅 준비단계
 
@@ -64,5 +66,11 @@ public class User {
 
     public void setEnd_minute(int end_minute) {
         End_minute = end_minute;
+    }
+    public int getRoomNumber() {
+        return roomNumber;
+    }
+    public void setRoomNumber(int roomNumber) {
+        this.roomNumber = roomNumber;
     }
 }

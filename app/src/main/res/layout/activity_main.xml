@@ -3,13 +3,54 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <TextView
+        android:id="@+id/text_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="181dp"
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="177dp"
+        android:text="안내사항" />
+
+    <TextView
+        android:id="@+id/text_hours"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_title"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="영업시간 : 06~23시" />
+
+    <TextView
+        android:id="@+id/text_min_rent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_hours"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="최소 대여시간 : 1시간" />
+
+    <TextView
+        android:id="@+id/text_max_rent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/text_min_rent"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="최대 대여시간 : 4시간" />
+
     <Button
         android:id="@+id/btn_reservation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/text_max_rent"
+        android:layout_alignParentStart="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="136dp"
+        android:layout_marginStart="142dp"
+        android:layout_marginTop="62dp"
         android:text="Reservation" />
 
     <Button
@@ -17,9 +58,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_reservation"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="139dp"
-        android:text="Cnfirm reservation" />
+        android:layout_centerInParent="true"
+        android:layout_marginTop="125dp"
+        android:text="Confirm reservation" />
 
     <Button
         android:id="@+id/btn_settings"
@@ -27,7 +68,6 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_confirm"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="121dp"
+        android:layout_marginTop="139dp"
         android:text="Manage" />
 </RelativeLayout>
-
