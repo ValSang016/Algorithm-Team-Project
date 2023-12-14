@@ -4,8 +4,11 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+// This class defines the object unit used to store
+// the number of rooms and cleaning time when setting up rooms on the "RoomSettingPage."
 @Entity
 public class ManageInfo {
+    // Getter and setter methods for the entity fields
     public int getId() {
         return id;
     }
@@ -30,6 +33,7 @@ public class ManageInfo {
         this.cleaningTime = cleaningTime;
     }
 
+    // Define fields with annotations for Room database
     @PrimaryKey
     private int id;
 

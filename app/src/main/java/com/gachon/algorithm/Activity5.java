@@ -19,7 +19,7 @@ public class Activity5 extends AppCompatActivity {
         EditText et_cleaningTime = findViewById(R.id.et_cleaningTime);
         Button btn_save = findViewById(R.id.btn_save);
         Button btn_back = findViewById(R.id.btn_Back);
-        Button btn_reset = findViewById(R.id.btn_Reset); // 초기화 버튼 추가
+        Button btn_reset = findViewById(R.id.btn_Reset);
 
         UserDataBase database = Room.databaseBuilder(getApplicationContext(), UserDataBase.class, "team_db")
                 .fallbackToDestructiveMigration()
@@ -34,13 +34,13 @@ public class Activity5 extends AppCompatActivity {
                 int roomCount = Integer.parseInt(et_roomCount.getText().toString());
                 int cleaningTime = Integer.parseInt(et_cleaningTime.getText().toString());
 
-                // ManageInfo 객체 생성 및 값 설정
+                // Create and set values for ManageInfo object
                 ManageInfo manageInfo = new ManageInfo();
                 manageInfo.setId(1);
                 manageInfo.setRoomCount(roomCount);
                 manageInfo.setCleaningTime(cleaningTime);
 
-                // Room 데이터베이스에 저장
+                // Save to the Room database
                 mManageInfoDao.insert(manageInfo);
             }
         });
@@ -48,15 +48,16 @@ public class Activity5 extends AppCompatActivity {
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Finish the page
                 finish();
             }
         });
 
-        // 초기화 버튼 클릭 이벤트
+        // Click event for the reset button
         btn_reset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Room 데이터베이스의 ManageInfo 테이블 초기화
+                // Reset the ManageInfo table in the Room database
                 mManageInfoDao.deleteAll();
             }
         });

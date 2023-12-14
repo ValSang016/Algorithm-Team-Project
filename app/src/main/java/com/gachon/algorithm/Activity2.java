@@ -17,11 +17,13 @@ public class Activity2 extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity2);
 
+        // Finding the EditText views and Button
         final EditText et_groupName = findViewById(R.id.et_groupName);
         final EditText et_startTime = findViewById(R.id.et_startTime);
         final EditText et_endTime = findViewById(R.id.et_endTime);
         Button btn_save = findViewById(R.id.btn_save);
 
+        // Building the Room database
         UserDataBase database = Room.databaseBuilder(getApplicationContext(), UserDataBase.class, "team_db")
                 .fallbackToDestructiveMigration()
                 .allowMainThreadQueries()
@@ -29,49 +31,57 @@ public class Activity2 extends AppCompatActivity {
 
         mUserDao = database.userDao();
 
+        // Setting a click listener for the save button
         btn_save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Getting input values
                 String groupName = et_groupName.getText().toString();
                 if (groupName.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "그룹 이름을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                    // Checking if group name is empty
+                    Toast.makeText(getApplicationContext(), "Please enter a group name.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                // 중복 그룹 이름 체크
+                // Checking for duplicate group names
                 User existingUser = mUserDao.findUserByGroupName(groupName);
                 if (existingUser != null) {
-                    Toast.makeText(getApplicationContext(), "이미 존재하는 그룹 이름입니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Group name already exists.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 try {
+                    // Parsing start and end time from input strings
                     int[] startTime = parseTime(et_startTime.getText().toString());
                     int[] endTime = parseTime(et_endTime.getText().toString());
 
+                    // Validating business hours
                     if (startTime[0] < 6 || endTime[0] > 23) {
-                        Toast.makeText(getApplicationContext(), "영업시간은 06시부터 23시까지입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Business hours are from 06:00 to 23:00.", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
+                    // Calculating time in minutes
                     int startTimeInMinutes = startTime[0] * 60 + startTime[1];
                     int endTimeInMinutes = endTime[0] * 60 + endTime[1];
 
+                    // Checking time constraints
                     if (startTimeInMinutes >= endTimeInMinutes) {
-                        Toast.makeText(getApplicationContext(), "시작 시간은 종료 시간보다 이전이어야 합니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Start time must be before end time.", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     if (endTimeInMinutes - startTimeInMinutes < 60) {
-                        Toast.makeText(getApplicationContext(), "최소 신청 시간은 1시간입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Minimum booking time is 1 hour.", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     if (endTimeInMinutes - startTimeInMinutes > 240) {
-                        Toast.makeText(getApplicationContext(), "최대 대여시간은 4시간입니다.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Maximum rental time is 4 hours.", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
+                    // Creating a new User object and inserting it into the database
                     User user = new User();
                     user.setGroup_name(groupName);
                     user.setStart_hour(startTime[0]);
@@ -80,14 +90,14 @@ public class Activity2 extends AppCompatActivity {
                     user.setEnd_minute(endTime[1]);
 
                     mUserDao.insert(user);
-                    Toast.makeText(getApplicationContext(), "데이터가 성공적으로 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Data saved successfully.", Toast.LENGTH_SHORT).show();
                 } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
-                    Toast.makeText(getApplicationContext(), "시간을 '시:분' 형식으로 올바르게 입력해주세요.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Please enter time in 'hour:minute' format.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-
+        // Setting a click listener for the back button
         Button btn_back = findViewById(R.id.btn_back);
         btn_back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,13 +107,12 @@ public class Activity2 extends AppCompatActivity {
         });
     }
 
-    // "시:분" 형식의 문자열을 시와 분으로 분리하는 메소드
+    // Method to parse a string in "hour:minute" format into hours and minutes
     private int[] parseTime(String timeStr) throws NumberFormatException, ArrayIndexOutOfBoundsException {
         String[] parts = timeStr.split(":");
         int[] time = new int[2];
-        time[0] = Integer.parseInt(parts[0]); // 시
-        time[1] = Integer.parseInt(parts[1]); // 분
+        time[0] = Integer.parseInt(parts[0]); // Hour
+        time[1] = Integer.parseInt(parts[1]); // Minute
         return time;
     }
-
 }

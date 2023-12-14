@@ -38,13 +38,13 @@ public class Activity3 extends AppCompatActivity {
                 .build();
 
 
-        mUserDao = database.userDao(); // database 인스턴스를 사용하도록 수정
+        mUserDao = database.userDao(); // Modify to use the database instance
         mManageInfoDao = database.manageInfoDao();
 
-        // 데이터베이스에서 데이터 비동기적으로 가져오기
+        // Asynchronously fetch data from the database
         new FetchDataAsyncTask(mManageInfoDao.getManageInfo()).execute();
 
-        // '뒤로가기' 버튼 클릭 이벤트 리스너 추가
+        // Add click event listener for the 'Back' button
         Button btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,12 +53,12 @@ public class Activity3 extends AppCompatActivity {
             }
         });
 
-        // '데이터 초기화' 버튼 클릭 이벤트 리스너 추가
+        // Add click event listener for the 'Reset Data' button
         Button btnReset = findViewById(R.id.btn_reset);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mUserDao.deleteAll(); // 모든 User 데이터 삭제
+                mUserDao.deleteAll(); // Delete all User data
                 new FetchDataAsyncTask(mManageInfoDao.getManageInfo()).execute();
             }
         });
@@ -75,10 +75,10 @@ public class Activity3 extends AppCompatActivity {
 
         @Override
         protected List<User> doInBackground(Void... voids) {
-            // 백그라운드에서 데이터베이스에서 데이터 가져오기
+            // Fetch data from the database in the background
             List<User> users = mUserDao.getUserAll();
 
-            // 종료 시간을 기준으로 정렬하고, 가장 많은 예약 시간을 갖는 경우를 선택하는 알고리즘을 적용
+            // Apply an algorithm to sort based on end time and select the case with the most reserved time
             List<User> sortedUsers = sortUsers(users);
 
             return sortedUsers;
@@ -129,7 +129,7 @@ public class Activity3 extends AppCompatActivity {
         private void addTableRow(TableLayout tableLayout, int index, String... values) {
             TableRow row = new TableRow(Activity3.this);
 
-            // 새로운 column 추가
+            // Adding a new column
             TextView indexTextView = new TextView(Activity3.this);
             indexTextView.setText(String.valueOf(index));
             indexTextView.setGravity(Gravity.CENTER);
@@ -156,15 +156,15 @@ public class Activity3 extends AppCompatActivity {
             return String.format("%02d:%02d", hours, minutes);
         }
 
-        // 종료 시간을 기준으로 정렬하고, 가장 많은 예약 시간을 갖는 경우를 선택하는 알고리즘
+        // Algorithm to sort based on end time and select the case with the most reserved time
         private List<User> sortUsers(List<User> users) {
-            List<User> finalReservation = new ArrayList<>(); // 최종 예약 리스트
-            List<User> currentUsers = new ArrayList<>(users); // 현재 예약 가능한 사용자 리스트
+            List<User> finalReservation = new ArrayList<>(); // Final reservation list
+            List<User> currentUsers = new ArrayList<>(users); // List of currently available users
 
-            // 각 회의실에 대해 반복
+            // Iterate through each room
             for (int i = 0; i < manageInfo.getRoomCount(); i++) {
 
-                // currentUsers를 종료 시간에 따라 오름차순 정렬
+                // Sort currentUsers based on end time
                 Collections.sort(currentUsers, new Comparator<User>() {
                     @Override
                     public int compare(User u1, User u2) {
@@ -175,15 +175,15 @@ public class Activity3 extends AppCompatActivity {
                 List<List<User>> subsets = new ArrayList<>();
                 subsets.add(new ArrayList<>());
 
-                // 현재 예약 가능한 각 사용자에 대해
+                // For each currently available user
                 for (User user : currentUsers) {
                     List<List<User>> newSubsets = new ArrayList<>();
 
-// Activity selection
-                    // 기존의 모든 부분집합에 대해
+                    // Activity selection
+                    // For each existing subset
                     for (List<User> subset : subsets) {
-                        // 부분집합이 비어있거나, 마지막 예약의 종료 시간 + 청소 시간이 사용자의 시작 시간보다 이전이면
-                        // 새 부분집합을 생성하고 사용자를 추가
+                        // If the subset is empty or if the end time of the last reservation + cleaning time is before the start time of the user
+                        // Create a new subset and add the user
                         if (subset.isEmpty() || (subset.get(subset.size() - 1).getEnd_hour() * 60 + subset.get(subset.size() - 1).getEnd_minute() + manageInfo.getCleaningTime()) <= (user.getStart_hour() * 60 + user.getStart_minute())) {
                             List<User> newSubset = new ArrayList<>(subset);
                             newSubset.add(user);
@@ -191,41 +191,41 @@ public class Activity3 extends AppCompatActivity {
                         }
                     }
 
-                    // 새로 생성된 모든 부분집합을 추가
+                    // Add all newly created subsets
                     subsets.addAll(newSubsets);
                 }
 
                 List<User> maxSubset = null;
                 int maxTime = 0;
 
-                // 모든 부분집합에 대해
+                // For each subset
                 for (List<User> subset : subsets) {
                     int time = 0;
 
-                    // 부분집합의 모든 예약에 대해 시간을 계산
+                    // Calculate time for all reservations in the subset
                     for (User user : subset) {
                         time += (user.getEnd_hour() * 60 + user.getEnd_minute()) - (user.getStart_hour() * 60 + user.getStart_minute());
                     }
 
-                    // 만약 계산된 시간이 최대 시간보다 크면, 최대 시간과 최대 부분집합을 업데이트
+                    // If the calculated time is greater than the max time, update the max time and max subset
                     if (time > maxTime) {
                         maxTime = time;
                         maxSubset = subset;
                     }
                 }
 
-                // 최대 부분집합이 null이 아니면, 각 사용자의 방 번호를 설정하고 최종 예약 리스트에 추가
+                // If max subset is not null, set room numbers for each user and add to the final reservation list
                 if (maxSubset != null) {
                     for (User user : maxSubset) {
-                        user.setRoomNumber(i + 1); // 방 번호 설정
+                        user.setRoomNumber(i + 1); // Set room number
                     }
                     finalReservation.addAll(maxSubset);
-                    currentUsers.removeAll(maxSubset); // 최대 부분집합의 사용자를 currentUsers에서 제거
+                    currentUsers.removeAll(maxSubset); // Remove users in the max subset from currentUsers
                 }
             }
 
-            cancelledUsers = currentUsers; // 처리되지 않은 예약들을 취소된 예약 리스트에 추가
-            return finalReservation; // 최종 예약 리스트 반환
+            cancelledUsers = currentUsers; // Add unprocessed reservations to the cancelled reservations list
+            return finalReservation; // Return the final reservation list
 
         }
     }

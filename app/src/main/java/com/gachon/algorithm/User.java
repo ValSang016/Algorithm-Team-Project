@@ -3,7 +3,7 @@ package com.gachon.algorithm;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
-
+// This class defines the object unit used to store reservation information inputted in "Reservation."
 @Entity
 public class User {
     @PrimaryKey(autoGenerate =true)
@@ -16,9 +16,6 @@ public class User {
     private int End_minute;
 
     private int roomNumber; // 새로운 필드
-
-
-//getter&setter 무언가를 가져오거나 세팅 준비단계
 
 
     public int getN() {
